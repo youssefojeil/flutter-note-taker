@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'dart:developer' as devtools show log;
 
 import 'package:notetaker/constants/routes.dart';
+import 'package:notetaker/utilities/show_error_dialog.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -42,7 +43,7 @@ class _LoginViewState extends State<LoginView> {
         email: email,
         password: password,
       );
-
+      if (!mounted) return;
       Navigator.of(context).pushNamedAndRemoveUntil(
         notesRoute,
         (route) => false,
@@ -50,12 +51,19 @@ class _LoginViewState extends State<LoginView> {
     } on FirebaseAuthException catch (e) {
       devtools.log(e.code.toString());
       if (e.code == 'invalid-credential') {
+        if (!mounted) return;
+        await showErrorDialog(context, 'User not found');
         devtools.log('User not found!');
       } else if (e.code == 'Wrong password') {
-        devtools.log('Wrong password');
+        if (!mounted) return;
+        await showErrorDialog(context, 'Wrong password');
+      } else {
+        if (!mounted) return;
+        await showErrorDialog(context, 'Error: ${e.code}');
       }
     } catch (e) {
       devtools.log(e.toString());
+      await showErrorDialog(context, 'Error: ${e.toString()}');
     }
   }
 
