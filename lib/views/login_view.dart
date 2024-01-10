@@ -1,30 +1,16 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'firebase_options.dart';
-import 'views/login_view.dart';
+import 'package:notetaker/firebase_options.dart';
 
-void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  runApp(
-    MaterialApp(
-        title: 'Flutter Demo',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurpleAccent),
-          useMaterial3: true,
-        ),
-        home: const RegisterView()),
-  );
-}
-
-class RegisterView extends StatefulWidget {
-  const RegisterView({super.key});
+class LoginView extends StatefulWidget {
+  const LoginView({super.key});
 
   @override
-  State<RegisterView> createState() => _RegisterViewState();
+  State<LoginView> createState() => _LoginViewState();
 }
 
-class _RegisterViewState extends State<RegisterView> {
+class _LoginViewState extends State<LoginView> {
   late final TextEditingController _email;
   late final TextEditingController _password;
 
@@ -45,23 +31,24 @@ class _RegisterViewState extends State<RegisterView> {
   }
 
   // register user function
-  _registerUser() async {
+  _loginUser() async {
     final email = _email.text;
     final password = _password.text;
 
     try {
       final userCredentials = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(email: email, password: password);
+          .signInWithEmailAndPassword(email: email, password: password);
 
       print(userCredentials);
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
-        print('Weak Password');
-      } else if (e.code == 'email-already-in-use') {
-        print('Email Already in Use');
-      } else if (e.code == 'invalid-email') {
-        print('Invalid Email');
+      print('this is the error $e.code');
+      if (e.code == 'invalid-credential') {
+        print('User not found!');
+      } else if (e.code == 'Wrong password') {
+        print('Wrong password');
       }
+    } catch (e) {
+      print(e);
     }
   }
 
@@ -70,7 +57,7 @@ class _RegisterViewState extends State<RegisterView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Register"),
+        title: const Text("Login"),
         backgroundColor: const Color.fromARGB(255, 120, 120, 158),
         elevation: 10.0,
         shadowColor: Colors.grey,
@@ -99,8 +86,8 @@ class _RegisterViewState extends State<RegisterView> {
                     decoration: const InputDecoration(hintText: '********'),
                   ),
                   TextButton(
-                    onPressed: _registerUser,
-                    child: const Text('Register'),
+                    onPressed: _loginUser,
+                    child: const Text('Login'),
                   ),
                 ],
               );
