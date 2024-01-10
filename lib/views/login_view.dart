@@ -38,16 +38,27 @@ class _LoginViewState extends State<LoginView> {
     final password = _password.text;
 
     try {
-      final userCredentials =
-          await FirebaseAuth.instance.signInWithEmailAndPassword(
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-      if (!mounted) return;
-      Navigator.of(context).pushNamedAndRemoveUntil(
-        notesRoute,
-        (route) => false,
-      );
+
+      final user = FirebaseAuth.instance.currentUser;
+      if (user?.emailVerified ?? false) {
+        //users email is verified
+        if (!mounted) return;
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          notesRoute,
+          (route) => false,
+        );
+      } else {
+        if (!mounted) return;
+        //users email is not verified
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          verifyEmailRoute,
+          (route) => false,
+        );
+      }
     } on FirebaseAuthException catch (e) {
       devtools.log(e.code.toString());
       if (e.code == 'invalid-credential') {
