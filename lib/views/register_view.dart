@@ -1,14 +1,14 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class LoginView extends StatefulWidget {
-  const LoginView({super.key});
+class RegisterView extends StatefulWidget {
+  const RegisterView({super.key});
 
   @override
-  State<LoginView> createState() => _LoginViewState();
+  State<RegisterView> createState() => _RegisterViewState();
 }
 
-class _LoginViewState extends State<LoginView> {
+class _RegisterViewState extends State<RegisterView> {
   late final TextEditingController _email;
   late final TextEditingController _password;
 
@@ -29,39 +29,35 @@ class _LoginViewState extends State<LoginView> {
   }
 
   // register user function
-  _loginUser() async {
+  _registerUser() async {
     final email = _email.text;
     final password = _password.text;
 
     try {
       final userCredentials = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(email: email, password: password);
+          .createUserWithEmailAndPassword(email: email, password: password);
 
       print(userCredentials);
     } on FirebaseAuthException catch (e) {
-      print('this is the error $e.code');
-      if (e.code == 'invalid-credential') {
-        print('User not found!');
-      } else if (e.code == 'Wrong password') {
-        print('Wrong password');
+      if (e.code == 'weak-password') {
+        print('Weak Password');
+      } else if (e.code == 'email-already-in-use') {
+        print('Email Already in Use');
+      } else if (e.code == 'invalid-email') {
+        print('Invalid Email');
       }
-    } catch (e) {
-      print(e);
     }
   }
 
-  _goToRegisterView() {
-    Navigator.of(context)
-        .pushNamedAndRemoveUntil('/register/', (route) => false);
+  _goToLoginView() {
+    Navigator.of(context).pushNamedAndRemoveUntil('/login/', (route) => false);
   }
 
   // MAIN VIEW WIDGET
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Login'),
-      ),
+      appBar: AppBar(title: const Text('Register')),
       body: Column(
         children: [
           TextField(
@@ -79,12 +75,13 @@ class _LoginViewState extends State<LoginView> {
             decoration: const InputDecoration(hintText: '********'),
           ),
           TextButton(
-            onPressed: _loginUser,
-            child: const Text('Login'),
+            onPressed: _registerUser,
+            child: const Text('Register'),
           ),
           TextButton(
-              onPressed: _goToRegisterView,
-              child: const Text('Not registered Yet? Register here!'))
+            onPressed: _goToLoginView,
+            child: const Text('Already Registered, Please login'),
+          )
         ],
       ),
     );
