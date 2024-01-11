@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:notetaker/constants/routes.dart';
 import 'package:notetaker/views/login_view.dart';
-import 'package:notetaker/views/notes_view.dart';
+import 'package:notetaker/views/notes/new_note_view.dart';
+import 'package:notetaker/views/notes/notes_view.dart';
 import 'package:notetaker/views/register_view.dart';
 import 'package:notetaker/views/verify_email_view.dart';
 
@@ -17,6 +18,7 @@ void main() {
           registerRoute: (context) => const RegisterView(),
           notesRoute: (context) => const NotesView(),
           verifyEmailRoute: (context) => const VerifyEmailView(),
+          newNoteRoute: (context) => const NewNoteView(),
         },
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurpleAccent),

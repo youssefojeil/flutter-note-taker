@@ -36,8 +36,14 @@ class _NotesViewState extends State<NotesView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Notes'),
+        title: Text('$userEmail Notes'),
         actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).pushNamed(newNoteRoute);
+            },
+            icon: const Icon(Icons.add),
+          ),
           PopupMenuButton<MenuAction>(
             onSelected: (value) async {
               switch (value) {
@@ -60,7 +66,7 @@ class _NotesViewState extends State<NotesView> {
                     value: MenuAction.logout, child: Text('Logout'))
               ];
             },
-          )
+          ),
         ],
       ),
       body: FutureBuilder(
