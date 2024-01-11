@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:developer' as devtools show log;
 
 import 'package:notetaker/constants/routes.dart';
+import 'package:notetaker/services/auth/auth_exceptions.dart';
+import 'package:notetaker/services/auth/auth_service.dart';
 import 'package:notetaker/utilities/show_error_dialog.dart';
 
 class RegisterView extends StatefulWidget {
@@ -38,31 +39,22 @@ class _RegisterViewState extends State<RegisterView> {
     final password = _password.text;
 
     try {
-      final userCredentials = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(email: email, password: password);
-
-      final user = FirebaseAuth.instance.currentUser;
-      await user?.sendEmailVerification();
-
+      await AuthService.firebase().createUser(email: email, password: password);
+      await AuthService.firebase().sendEmailVerification();
       if (!mounted) return;
       Navigator.of(context).pushNamed(verifyEmailRoute);
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
-        if (!mounted) return;
-        await showErrorDialog(context, 'Weak Password');
-      } else if (e.code == 'email-already-in-use') {
-        if (!mounted) return;
-        await showErrorDialog(context, 'Email Already in Use');
-      } else if (e.code == 'invalid-email') {
-        if (!mounted) return;
-        await showErrorDialog(context, 'Invalid Email');
-      } else {
-        if (!mounted) return;
-        await showErrorDialog(context, 'Error: ${e.code}');
-      }
-    } catch (e) {
+    } on WeakPasswordAuthException {
       if (!mounted) return;
-      await showErrorDialog(context, 'Error: ${e.toString()}');
+      await showErrorDialog(context, 'Weak Password');
+    } on EmailAlreadyInUseAuthException {
+      if (!mounted) return;
+      await showErrorDialog(context, 'Email Already in Use');
+    } on InvalidEmailAuthException {
+      if (!mounted) return;
+      await showErrorDialog(context, 'Invalid Email');
+    } on GenericAuthException {
+      if (!mounted) return;
+      await showErrorDialog(context, 'Authentication Error');
     }
   }
 
